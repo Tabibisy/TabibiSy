@@ -1,0 +1,1997 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق طبيبي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Loading animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Pulse animation for important elements */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Fade in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        /* Custom checkbox */
+        .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #3b82f6;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .custom-checkbox:checked {
+            background-color: #3b82f6;
+        }
+        
+        .custom-checkbox:checked::after {
+            content: "✓";
+            font-size: 14px;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        /* Custom radio */
+        .custom-radio {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #3b82f6;
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .custom-radio:checked {
+            background-color: #3b82f6;
+        }
+        
+        .custom-radio:checked::after {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Transition effects */
+        .transition-effect {
+            transition: all 0.3s ease;
+        }
+        
+        /* Hide scrollbar but allow scrolling */
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Custom range slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #d1d5db;
+            outline: none;
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+        }
+        
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800" dir="rtl">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 shadow-lg">
+            <div class="container mx-auto flex justify-between items-center">
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <i class="fas fa-user-md text-2xl"></i>
+                    <h1 class="text-xl md:text-2xl font-bold">تطبيق طبيبي</h1>
+                </div>
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <button id="settingsBtn" class="p-2 rounded-full hover:bg-blue-700 transition-effect">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button id="chatBtn" class="p-2 rounded-full bg-blue-500 hover:bg-blue-700 transition-effect">
+                        <i class="fas fa-comments"></i>
+                        <span class="hidden md:inline-block mr-1">الدردشة مع الطبيب الذكي</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto p-4">
+            <!-- Connection Status -->
+            <div id="connectionStatus" class="hidden mb-4 p-3 rounded-lg text-white flex items-center">
+                <span id="statusText" class="mr-2"></span>
+                <span id="statusIcon"></span>
+            </div>
+
+            <!-- Settings Modal -->
+            <div id="settingsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">الإعدادات</h3>
+                        <button id="closeSettings" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="apiKey" class="block text-sm font-medium text-gray-700 mb-1">مفتاح الإشتراك</label>
+                            <input type="password" id="apiKey" placeholder="أدخل مفتاح الأشتراك الخاص بك" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="flex justify-between">
+                            <button id="testConnection" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-effect">
+                                اختبار الاتصال
+                            </button>
+                            <button id="saveSettings" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-effect">
+                                حفظ الإعدادات
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Modal -->
+            <div id="chatModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl h-[80vh] flex flex-col">
+                    <div class="flex justify-between items-center p-4 border-b">
+                        <h3 class="text-xl font-bold">الدردشة مع الطبيب الذكي</h3>
+                        <button id="closeChat" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div id="chatContainer" class="flex-grow overflow-y-auto p-4 hide-scrollbar space-y-4">
+                        <!-- Chat messages will be added here -->
+                    </div>
+                    <div class="p-4 border-t">
+                        <div class="flex space-x-2 space-x-reverse">
+                            <input id="chatInput" type="text" placeholder="اكتب رسالتك هنا..." 
+                                   class="flex-grow px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button id="sendChat" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-effect">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="historyForm" class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold mb-6 text-blue-700 border-b pb-2">أخذ القصة السريرية</h2>
+                
+                <!-- Form Progress Steps -->
+                <div class="mb-8">
+                    <div class="flex justify-between relative">
+                        <!-- Progress line -->
+                        <div class="absolute top-3 right-0 left-0 h-1 bg-gray-200 z-0"></div>
+                        <div id="progressLine" class="absolute top-3 right-0 h-1 bg-blue-600 z-10 transition-all duration-300"></div>
+                        
+                        <div class="flex justify-between w-full z-20">
+                            <div data-step="1" class="step flex flex-col items-center cursor-pointer">
+                                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white mb-2">
+                                    <span>1</span>
+                                </div>
+                                <span class="text-xs font-medium">المعلومات الشخصية</span>
+                            </div>
+                            <div data-step="2" class="step flex flex-col items-center cursor-pointer">
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 mb-2">
+                                    <span>2</span>
+                                </div>
+                                <span class="text-xs font-medium">الشكايات</span>
+                            </div>
+                            <div data-step="3" class="step flex flex-col items-center cursor-pointer">
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 mb-2">
+                                    <span>3</span>
+                                </div>
+                                <span class="text-xs font-medium">السوابق</span>
+                            </div>
+                            <div data-step="4" class="step flex flex-col items-center cursor-pointer">
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 mb-2">
+                                    <span>4</span>
+                                </div>
+                                <span class="text-xs font-medium">العلامات الحيوية</span>
+                            </div>
+                            <div data-step="5" class="step flex flex-col items-center cursor-pointer">
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 mb-2">
+                                    <span>5</span>
+                                </div>
+                                <span class="text-xs font-medium">النتائج</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 1: Personal Information -->
+                <div id="step1" class="form-step fade-in">
+                    <h3 class="text-xl font-semibold mb-4 text-blue-600">المعلومات الشخصية للمريض</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label for="patientName" class="block text-sm font-medium text-gray-700 mb-1">الاسم الكامل</label>
+                            <input type="text" id="patientName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="patientGender" class="block text-sm font-medium text-gray-700 mb-1">الجنس</label>
+                            <select id="patientGender" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">اختر الجنس</option>
+                                <option value="ذكر">ذكر</option>
+                                <option value="أنثى">أنثى</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="patientAge" class="block text-sm font-medium text-gray-700 mb-1">العمر</label>
+                            <input type="number" id="patientAge" min="0" max="120" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="maritalStatus" class="block text-sm font-medium text-gray-700 mb-1">الحالة الاجتماعية</label>
+                            <select id="maritalStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">اختر الحالة الاجتماعية</option>
+                                <option value="أعزب">أعزب</option>
+                                <option value="متزوج">متزوج</option>
+                                <option value="مطلق">مطلق</option>
+                                <option value="أرمل">أرمل</option>
+                            </select>
+                        </div>
+                        <div class="children-number hidden">
+                            <label for="childrenNumber" class="block text-sm font-medium text-gray-700 mb-1">عدد الأولاد</label>
+                            <input type="number" id="childrenNumber" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="patientAddress" class="block text-sm font-medium text-gray-700 mb-1">عنوان السكن</label>
+                            <input type="text" id="patientAddress" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="patientOccupation" class="block text-sm font-medium text-gray-700 mb-1">المهنة</label>
+                            <input type="text" id="patientOccupation" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div class="flex justify-between">
+                        <button class="next-btn bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-effect disabled:opacity-50" disabled>التالي</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Chief Complaints -->
+                <div id="step2" class="form-step hidden fade-in">
+                    <h3 class="text-xl font-semibold mb-4 text-blue-600">الشكاية الرئيسية والأعراض</h3>
+                    <div id="complaintsContainer">
+                        <div class="mb-6">
+                            <label for="chiefComplaint" class="block text-sm font-medium text-gray-700 mb-1">الشكاية الرئيسية</label>
+                            <input type="text" id="chiefComplaint" placeholder="مثل: ألم في الصدر، صداع، ضيق نفس..."
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="flex items-center mt-2">
+                                <input type="checkbox" id="addComplaintDetails" class="custom-checkbox">
+                                <label for="addComplaintDetails" class="mr-2 text-sm text-gray-700 cursor-pointer">إضافة تفاصيل عن هذه الشكاية</label>
+                            </div>
+                            <div id="complaintDetails" class="mt-4 p-4 bg-gray-50 rounded-lg hidden">
+                                <!-- Details for pain complaint -->
+                                <div id="painDetails" class="hidden space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">طبيعة الألم</label>
+                                        <select id="painNature" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="">اختر طبيعة الألم</option>
+                                            <option value="موضعي">موضعي</option>
+                                            <option value="معمم">معمم</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="painLocation" class="block text-sm font-medium text-gray-700 mb-1">موقع الألم</label>
+                                        <input type="text" id="painLocation" placeholder="مثال: الجانب الأيمن من البطن"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label for="painRadiation" class="block text-sm font-medium text-gray-700 mb-1">انتشار الألم</label>
+                                        <input type="text" id="painRadiation" placeholder="مثال: ينتشر إلى الكتف الأيمن"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">صفات الألم</label>
+                                        <div class="flex">
+                                            <input type="text" id="painQualitySearch" placeholder="ابحث عن صفة..."
+                                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <button id="addPainQuality" class="bg-blue-600 text-white px-4 py-2 rounded-l-md hover:bg-blue-700 transition-effect">
+                                                إضافة
+                                            </button>
+                                        </div>
+                                        <div id="painQualities" class="flex flex-wrap mt-2 gap-2"></div>
+                                        <input type="text" id="customPainQuality" placeholder="أو اكتب صفة مخصصة..."
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2">
+                                    </div>
+                                    <div>
+                                        <label for="painSeverity" class="block text-sm font-medium text-gray-700 mb-1">شدة الألم (0-10)</label>
+                                        <input type="range" id="painSeverity" min="0" max="10" step="1" value="5"
+                                               class="w-full">
+                                        <div class="flex justify-between text-xs mt-1">
+                                            <span>0 - لا يوجد ألم</span>
+                                            <span id="painSeverityValue">5</span>
+                                            <span>10 - أسوأ ألم يمكن تخيله</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="painOnset" class="block text-sm font-medium text-gray-700 mb-1">طريقة ومعدل البداية</label>
+                                        <input type="text" id="painOnset" placeholder="مثال: بدأ فجأة منذ ساعتين"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label for="painDuration" class="block text-sm font-medium text-gray-700 mb-1">المدة</label>
+                                        <input type="text" id="painDuration" placeholder="مثال: مستمر منذ 3 أيام"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label for="painFrequency" class="block text-sm font-medium text-gray-700 mb-1">التكرار</label>
+                                        <input type="text" id="painFrequency" placeholder="مثال: كل أسبوع"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">عوامل مفاقمة</label>
+                                        <div class="flex items-center">
+                                            <input type="text" id="aggravatingFactor" placeholder="مثال: الحركة، التنفس العميق"
+                                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <button id="addAggravating" class="bg-blue-600 text-white px-4 py-2 rounded-l-md hover:bg-blue-700 transition-effect">
+                                                إضافة
+                                            </button>
+                                        </div>
+                                        <div id="aggravatingFactors" class="mt-2 space-y-2"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">عوامل مخففة</label>
+                                        <div class="flex items-center">
+                                            <input type="text" id="relievingFactor" placeholder="مثال: الراحة، الدواء الفلاني"
+                                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <button id="addRelieving" class="bg-blue-600 text-white px-4 py-2 rounded-l-md hover:bg-blue-700 transition-effect">
+                                                إضافة
+                                            </button>
+                                        </div>
+                                        <div id="relievingFactors" class="mt-2 space-y-2"></div>
+                                    </div>
+                                    <div>
+                                        <label for="associatedSymptoms" class="block text-sm font-medium text-gray-700 mb-1">أعراض مرافقة</label>
+                                        <textarea id="associatedSymptoms" rows="2"
+                                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                                    </div>
+                                </div>
+                                
+                                <!-- Details for non-pain complaint -->
+                                <div id="nonPainDetails" class="hidden space-y-4">
+                                    <div>
+                                        <label for="complaintNature" class="block text-sm font-medium text-gray-700 mb-1">الطبيعة الدقيقة للعرض</label>
+                                        <input type="text" id="complaintNature" placeholder="مثال: سخونة شديدة مع قشعريرة"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label for="complaintOnset" class="block text-sm font-medium text-gray-700 mb-1">تاريخ وطريقة البداية</label>
+                                        <input type="text" id="complaintOnset" placeholder="مثال: بدأ تدريجياً منذ 3 أيام"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label for="complaintDuration" class="block text-sm font-medium text-gray-700 mb-1">المدة والاستمرارية</label>
+                                        <input type="text" id="complaintDuration" placeholder="مثال: مستمر طوال اليوم"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label for="complaintFrequency" class="block text-sm font-medium text-gray-700 mb-1">التكرار</label>
+                                        <input type="text" id="complaintFrequency" placeholder="مثال: 3 مرات يومياً"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label for="complaintProgression" class="block text-sm font-medium text-gray-700 mb-1">التغير بمرور الوقت</label>
+                                        <select id="complaintProgression" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="">اختر وصف التغير</option>
+                                            <option value="يتحسن">يتحسن</option>
+                                            <option value="يسوء">يسوء</option>
+                                            <option value="مستقر">مستقر</option>
+                                            <option value="متغير">متغير</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">عوامل مخففة</label>
+                                        <div class="flex items-center">
+                                            <input type="text" id="nonPainRelievingFactor" placeholder="مثال: الراحة، الدواء الفلاني"
+                                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <button id="addNonPainRelieving" class="bg-blue-600 text-white px-4 py-2 rounded-l-md hover:bg-blue-700 transition-effect">
+                                                إضافة
+                                            </button>
+                                        </div>
+                                        <div id="nonPainRelievingFactors" class="mt-2 space-y-2"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">عوامل مفاقمة</label>
+                                        <div class="flex items-center">
+                                            <input type="text" id="nonPainAggravatingFactor" placeholder="مثال: الحركة، تناول الطعام"
+                                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <button id="addNonPainAggravating" class="bg-blue-600 text-white px-4 py-2 rounded-l-md hover:bg-blue-700 transition-effect">
+                                                إضافة
+                                            </button>
+                                        </div>
+                                        <div id="nonPainAggravatingFactors" class="mt-2 space-y-2"></div>
+                                    </div>
+                                    <div>
+                                        <label for="nonPainAssociatedSymptoms" class="block text-sm font-medium text-gray-700 mb-1">أعراض مرافقة</label>
+                                        <textarea id="nonPainAssociatedSymptoms" rows="2"
+                                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="addAnotherComplaint" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-effect mb-6">
+                        <i class="fas fa-plus mr-1"></i> إضافة شكاية أخرى
+                    </button>
+                    <div class="flex justify-between">
+                        <button class="prev-btn bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400 transition-effect">السابق</button>
+                        <button class="next-btn bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-effect">التالي</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Medical History -->
+                <div id="step3" class="form-step hidden fade-in">
+                    <h3 class="text-xl font-semibold mb-4 text-blue-600">السوابق الطبية</h3>
+                    
+                    <!-- Medical History -->
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium mb-2 text-blue-500">السوابق المرضية</h4>
+                        <div id="medicalHistoryOptions" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="noMedicalHistory" name="medicalHistory" value="لا يوجد" class="custom-checkbox">
+                                <label for="noMedicalHistory" class="mr-2 text-sm text-gray-700 cursor-pointer">لا يوجد</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="diabetes" name="medicalHistory" value="السكري" class="custom-checkbox">
+                                <label for="diabetes" class="mr-2 text-sm text-gray-700 cursor-pointer">السكري</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="rheumaticFever" name="medicalHistory" value="الحمى الرثوية" class="custom-checkbox">
+                                <label for="rheumaticFever" class="mr-2 text-sm text-gray-700 cursor-pointer tooltip">
+                                    <span>الحمى الرثوية</span>
+                                    <span class="tooltip-text">التهاب يصيب القلب والمفاصل والجلد والجهاز العصبي نتيجة التهاب الحلق بالمكورات العنقودية</span>
+                                </label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="jaundice" name="medicalHistory" value="اليرقان" class="custom-checkbox">
+                                <label for="jaundice" class="mr-2 text-sm text-gray-700 cursor-pointer">اليرقان</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="hyperlipidemia" name="medicalHistory" value="فرط كولسترول الدم" class="custom-checkbox">
+                                <label for="hyperlipidemia" class="mr-2 text-sm text-gray-700 cursor-pointer">فرط كولسترول الدم</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="hypertension" name="medicalHistory" value="فرط ضغط الدم" class="custom-checkbox">
+                                <label for="hypertension" class="mr-2 text-sm text-gray-700 cursor-pointer">فرط ضغط الدم</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="angina" name="medicalHistory" value="الذبحة الصدرية" class="custom-checkbox">
+                                <label for="angina" class="mr-2 text-sm text-gray-700 cursor-pointer">الذبحة الصدرية</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="mi" name="medicalHistory" value="احتشاء عضلة القلب" class="custom-checkbox">
+                                <label for="mi" class="mr-2 text-sm text-gray-700 cursor-pointer tooltip">
+                                    <span>احتشاء عضلة القلب</span>
+                                    <span class="tooltip-text">النوبة القلبية بسبب انسداد أحد الشرايين التاجية المغذية للقلب</span>
+                                </label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="stroke" name="medicalHistory" value="الصدمة أو نوبة إقفارية عابرة" class="custom-checkbox">
+                                <label for="stroke" class="mr-2 text-sm text-gray-700 cursor-pointer tooltip">
+                                    <span>الصدمة أو نوبة إقفارية عابرة</span>
+                                    <span class="tooltip-text">نقص التروية المؤقت للدماغ بسبب انسداد وعاء دموي مؤقت</span>
+                                </label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="asthma" name="medicalHistory" value="الربو" class="custom-checkbox">
+                                <label for="asthma" class="mr-2 text-sm text-gray-700 cursor-pointer">الربو</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="tb" name="medicalHistory" value="السل" class="custom-checkbox">
+                                <label for="tb" class="mr-2 text-sm text-gray-700 cursor-pointer">السل</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="epilepsy" name="medicalHistory" value="الصرع" class="custom-checkbox">
+                                <label for="epilepsy" class="mr-2 text-sm text-gray-700 cursor-pointer">الصرع</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="anesthesiaProblems" name="medicalHistory" value="مشاكل التخدير" class="custom-checkbox">
+                                <label for="anesthesiaProblems" class="mr-2 text-sm text-gray-700 cursor-pointer">مشاكل التخدير</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="bloodTransfusion" name="medicalHistory" value="نقل الدم" class="custom-checkbox">
+                                <label for="bloodTransfusion" class="mr-2 text-sm text-gray-700 cursor-pointer">نقل الدم</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="childhoodDiseases" name="medicalHistory" value="أمراض الطفولة و العقابيل" class="custom-checkbox">
+                                <label for="childhoodDiseases" class="mr-2 text-sm text-gray-700 cursor-pointer tooltip">
+                                    <span>أمراض الطفولة و العقابيل</span>
+                                    <span class="tooltip-text">الأمراض التي أصيب بها المريض في طفولته وتبعاتها</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="otherMedicalHistory" class="block text-sm font-medium text-gray-700 mb-1">غير ذلك (يرجى التحديد)</label>
+                            <input type="text" id="otherMedicalHistory" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <!-- Surgical History -->
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium mb-2 text-blue-500">السوابق الجراحية</h4>
+                        <div id="surgicalHistoryOptions" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="noSurgicalHistory" name="surgicalHistory" value="لا يوجد" class="custom-checkbox">
+                                <label for="noSurgicalHistory" class="mr-2 text-sm text-gray-700 cursor-pointer">لا يوجد</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="appendectomy" name="surgicalHistory" value="الزائدة" class="custom-checkbox">
+                                <label for="appendectomy" class="mr-2 text-sm text-gray-700 cursor-pointer tooltip">
+                                    <span>استئصال الزائدة</span>
+                                    <span class="tooltip-text">عملية جراحية لاستئصال الزائدة الدودية الملتهبة</span>
+                                </label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="cholecystectomy" name="surgicalHistory" value="المرارة" class="custom-checkbox">
+                                <label for="cholecystectomy" class="mr-2 text-sm text-gray-700 cursor-pointer tooltip">
+                                    <span>استئصال المرارة</span>
+                                    <span class="tooltip-text">عملية جراحية لاستئصال المرارة المصابة بحصوات أو التهاب</span>
+                                </label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="splenectomy" name="surgicalHistory" value="استئصال الطحال" class="custom-checkbox">
+                                <label for="splenectomy" class="mr-2 text-sm text-gray-700 cursor-pointer tooltip">
+                                    <span>استئصال الطحال</span>
+                                    <span class="tooltip-text">عملية جراحية لاستئصال الطحال بسبب إصابة أو مرض</span>
+                                </label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="hysterectomy" name="surgicalHistory" value="استئصال الرحم او / و ملحقاته" class="custom-checkbox">
+                                <label for="hysterectomy" class="mr-2 text-sm text-gray-700 cursor-pointer tooltip">
+                                    <span>استئصال الرحم أو ملحقاته</span>
+                                    <span class="tooltip-text">عملية جراحية لاستئصال الرحم أو المبايض أو قناتي فالوب</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="otherSurgicalHistory" class="block text-sm font-medium text-gray-700 mb-1">غير ذلك (يرجى التحديد)</label>
+                            <input type="text" id="otherSurgicalHistory" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <!-- Medication and Allergy History -->
+                    <div class="mb-6 space-y-6">
+                        <div>
+                            <h4 class="text-lg font-medium mb-2 text-blue-500">السوابق الدوائية</h4>
+                            <div id="medicationsContainer">
+                                <div class="mb-3">
+                                    <div id="medicationSearchWrapper" class="relative">
+                                        <input type="text" id="medicationSearch" placeholder="ابحث عن دواء أو أدخل اسم الدواء..."
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <div id="medicationSuggestions" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg hidden">
+                                            <!-- Medication suggestions will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="selectedMedications" class="space-y-2"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-medium mb-2 text-blue-500">تاريخ التحسس</h4>
+                            <div id="allergiesContainer">
+                                <div class="flex items-center space-x-2 space-x-reverse">
+                                    <div class="flex-grow">
+                                        <input type="text" id="allergyInput" placeholder="اكتب مادة أو دواء يسبب التحسس..."
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <select id="allergyType" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="دواء">دواء</option>
+                                            <option value="طعام">طعام</option>
+                                            <option value="مادة">مادة</option>
+                                            <option value="أخرى">أخرى</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <button id="addAllergy" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-effect">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="allergiesList" class="mt-3 space-y-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between">
+                        <button class="prev-btn bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400 transition-effect">السابق</button>
+                        <button class="next-btn bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-effect">التالي</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Vital Signs -->
+                <div id="step4" class="form-step hidden fade-in">
+                    <h3 class="text-xl font-semibold mb-4 text-blue-600">العلامات الحيوية</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="temperature" class="block text-sm font-medium text-gray-700 mb-1">درجة الحرارة (°C)</label>
+                            <input type="number" id="temperature" step="0.1" min="34" max="42" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="bloodPressureSystolic" class="block text-sm font-medium text-gray-700 mb-1">ضغط الدم (mmHg)</label>
+                            <div class="flex items-center">
+                                <input type="number" id="bloodPressureSystolic" min="70" max="250" placeholder="الانقباضي"
+                                       class="w-1/2 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <span class="px-2">/</span>
+                                <input type="number" id="bloodPressureDiastolic" min="40" max="150" placeholder="الانبساطي"
+                                       class="w-1/2 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="pulse" class="block text-sm font-medium text-gray-700 mb-1">النبض (نبضة/دقيقة)</label>
+                            <input type="number" id="pulse" min="30" max="200" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="respiratoryRate" class="block text-sm font-medium text-gray-700 mb-1">معدل التنفس (نفس/دقيقة)</label>
+                            <input type="number" id="respiratoryRate" min="5" max="60" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="oxygenSaturation" class="block text-sm font-medium text-gray-700 mb-1">إشباع الأكسجين (%)</label>
+                            <div class="flex items-center">
+                                <input type="number" id="oxygenSaturation" min="70" max="100" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <span class="ml-2">%</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="weight" class="block text-sm font-medium text-gray-700 mb-1">الوزن (كغم)</label>
+                            <input type="number" id="weight" step="0.1" min="2" max="200" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="height" class="block text-sm font-medium text-gray-700 mb-1">الطول (سم)</label>
+                            <input type="number" id="height" min="50" max="250" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="bmi" class="block text-sm font-medium text-gray-700 mb-1">مؤشر كتلة الجسم (BMI)</label>
+                            <input type="text" id="bmi" readonly class="w-full px-3 py-2 border border-gray-300 bg-gray-100 rounded-md">
+                        </div>
+                    </div>
+                    <div class="mt-6 space-y-4">
+                        <h4 class="text-lg font-medium text-blue-500">ملاحظات إضافية</h4>
+                        <textarea id="vitalNotes" rows="3" placeholder="أي ملاحظات إضافية حول العلامات الحيوية أو الحالة العامة..."
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="flex justify-between mt-6">
+                        <button class="prev-btn bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400 transition-effect">السابق</button>
+                        <button class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-effect" id="completeHistoryBtn">إكمال القصة السريرية</button>
+                    </div>
+                </div>
+
+                <!-- Step 5: Results from Gemini -->
+                <div id="step5" class="form-step hidden fade-in">
+                    <h3 class="text-xl font-semibold mb-4 text-blue-600">نتائج التحليل والتوصيات الطبية</h3>
+                    <div class="text-center py-8" id="loadingResults">
+                        <div class="inline-block loading-spinner text-blue-500">
+                            <i class="fas fa-circle-notch fa-3x"></i>
+                        </div>
+                        <p class="mt-4 text-gray-600">جاري تحليل المعلومات وتوليد التقرير الطبي...</p>
+                    </div>
+                    <div id="resultsContainer" class="hidden">
+                        <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-lg font-bold text-blue-600">نبذة عن المريض</h4>
+                                <button id="exportPdf" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-effect">
+                                    <i class="fas fa-file-pdf mr-2"></i>تصدير كـ PDF
+                                </button>
+                            </div>
+                            <div id="patientSummary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                                <!-- Patient summary will be filled here by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div class="mb-8">
+                            <h4 class="text-lg font-bold text-blue-600 border-b pb-2 mb-4">النتيجة النهائية</h4>
+                            <div id="diagnosisResults" class="space-y-6">
+                                <!-- Diagnosis results will be filled here by JavaScript -->
+                            </div>
+                        </div>
+                        
+                    <div class="flex justify-between">
+                        <button class="prev-btn bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400 transition-effect">السابق</button>
+                        <button id="newHistory" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-effect">بدء قصة سريرية جديدة</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-100 p-4 border-t">
+            <div class="container mx-auto text-center text-gray-600 text-sm">
+                <p>جميع الحقوق محفوظة لفريق أوكسجين 2025©</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tailwind config
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            'tajawal': ['Tajawal', 'sans-serif']
+                        },
+                        colors: {
+                            'primary': {
+                                '50': '#eff6ff',
+                                '100': '#dbeafe',
+                                '200': '#bfdbfe',
+                                '300': '#93c5fd',
+                                '400': '#60a5fa',
+                                '500': '#3b82f6',
+                                '600': '#2563eb',
+                                '700': '#1d4ed8',
+                                '800': '#1e40af',
+                                '900': '#1e3a8a',
+                                '950': '#172554'
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Variables
+            let currentStep = 1;
+            const totalSteps = 5;
+            const apiKey = localStorage.getItem('geminiApiKey') || '';
+            let complaintCount = 1;
+            
+            // Common drug list
+            const commonDrugs = [
+                "باراسيتامول", "أيبوبروفين", "أسبرين", "ديكلوفيناك", "أوميبرازول", 
+                "ميتفورمين", "إنسولين", "أموكسيسيلين", "أزيثروميسين", "سيفاليكسين",
+                "أتروفاستاتين", "سيمفاستاتين", "لوسارتان", "فالسارتان", "آملوديبين",
+                "بيزوتيرول", "سالميتيرول", "مونتيلوكاست", "لوراتادين", "سيتريزين",
+                "فلوكستين", "سيرترالين", "دولوكستين", "ديازيبام", "ألبرازولام",
+                "مورفين", "ترامادول", "كودايين", "ميرتازابين", "توريميفين",
+                "وارفارين", "هيبارين", "كلوبيدوقرل", "أسبرين 81", "سبيرونولاكتون",
+                "فوروسيميد", "هيدروكلوروثيازيد", "دومبيريدون", "ميتوكلوبراميد", "رانيتيدين",
+                "ديفينهيدرامين", "بروميثازين", "هيدروكورتيزون", "بريدنيزولون", "ليفوثيروكسين",
+                "ميثوتريكسات", "سالازوبيرين", "سولفاسالازين", "آزاثيوبرين", "سيكلوسبورين",
+                "تاكروليمس", "وايثر كيوتين", "ميترونيدازول", "سيبروفلوكساسين", "ليفوفلوكساسين",
+                "دوكسيسيكلين", "تتراسيكلين", "إريثروميسين", "كلاريثروميسين", "كليندامايسين",
+                "فانكومايسين", "ميروبينيم", "بيبيراسيلين/تازوباكتام", "سيفترياكسون", "سيفيبيم"
+            ];
+            
+            // DOM Elements
+            const formSteps = document.querySelectorAll('.form-step');
+            const nextButtons = document.querySelectorAll('.next-btn');
+            const prevButtons = document.querySelectorAll('.prev-btn');
+            const stepIndicators = document.querySelectorAll('.step');
+            const progressLine = document.getElementById('progressLine');
+            const settingsBtn = document.getElementById('settingsBtn');
+            const settingsModal = document.getElementById('settingsModal');
+            const closeSettings = document.getElementById('closeSettings');
+            const apiKeyInput = document.getElementById('apiKey');
+            const testConnectionBtn = document.getElementById('testConnection');
+            const saveSettingsBtn = document.getElementById('saveSettings');
+            const connectionStatus = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('statusText');
+            const statusIcon = document.getElementById('statusIcon');
+            const chatBtn = document.getElementById('chatBtn');
+            const chatModal = document.getElementById('chatModal');
+            const closeChat = document.getElementById('closeChat');
+            const chatInput = document.getElementById('chatInput');
+            const sendChat = document.getElementById('sendChat');
+            const chatContainer = document.getElementById('chatContainer');
+            const completeHistoryBtn = document.getElementById('completeHistoryBtn');
+            const newHistoryBtn = document.getElementById('newHistory');
+            const exportPdfBtn = document.getElementById('exportPdf');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const loadingResults = document.getElementById('loadingResults');
+            
+            // Check if API key exists in local storage
+            if (apiKey) {
+                apiKeyInput.value = apiKey;
+            }
+            
+            // Initialize application
+            init();
+            
+            // Functions
+            function init() {
+                setupEventListeners();
+                checkConnection();
+                setupMaritalStatusChildren();
+                setupMedicationSearch();
+                setupPainSeverity();
+                setupWeightHeightBMI();
+                loadChatHistory();
+                testAllInputs();
+            }
+            
+            function setupEventListeners() {
+                // Navigation buttons
+                nextButtons.forEach(button => {
+                    button.addEventListener('click', goToNextStep);
+                });
+                
+                prevButtons.forEach(button => {
+                    button.addEventListener('click', goToPreviousStep);
+                });
+                
+                // Step indicators
+                stepIndicators.forEach(indicator => {
+                    indicator.addEventListener('click', function() {
+                        const step = parseInt(this.getAttribute('data-step'));
+                        if (step < currentStep) {
+                            goToStep(step);
+                        }
+                    });
+                });
+                
+                // Settings modal
+                settingsBtn.addEventListener('click', openSettings);
+                closeSettings.addEventListener('click', closeSettingsModal);
+                testConnectionBtn.addEventListener('click', checkConnection);
+                saveSettingsBtn.addEventListener('click', saveSettings);
+                
+                // Chat modal
+                chatBtn.addEventListener('click', openChat);
+                closeChat.addEventListener('click', closeChatModal);
+                sendChat.addEventListener('click', sendChatMessage);
+                chatInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendChatMessage();
+                    }
+                });
+                
+                // Form controls
+                document.getElementById('maritalStatus').addEventListener('change', toggleChildrenField);
+                document.getElementById('chiefComplaint').addEventListener('input', toggleComplaintDetails);
+                document.getElementById('addComplaintDetails').addEventListener('change', toggleComplaintDetailsSection);
+                document.getElementById('addAnotherComplaint').addEventListener('click', addAnotherComplaint);
+                document.getElementById('addPainQuality').addEventListener('click', addPainQuality);
+                document.getElementById('addAggravating').addEventListener('click', addAggravatingFactor);
+                document.getElementById('addRelieving').addEventListener('click', addRelievingFactor);
+                document.getElementById('addNonPainAggravating').addEventListener('click', addNonPainAggravatingFactor);
+                document.getElementById('addNonPainRelieving').addEventListener('click', addNonPainRelievingFactor);
+                document.getElementById('addAllergy').addEventListener('click', addAllergy);
+                document.getElementById('noMedicalHistory').addEventListener('change', toggleMedicalHistory);
+                document.getElementById('noSurgicalHistory').addEventListener('change', toggleSurgicalHistory);
+                document.getElementById('weight').addEventListener('input', calculateBMI);
+                document.getElementById('height').addEventListener('input', calculateBMI);
+                
+                // Final actions
+                completeHistoryBtn.addEventListener('click', completeHistory);
+                newHistoryBtn.addEventListener('click', startNewHistory);
+                function startNewHistory() {
+    // العودة إلى الخطوة الأولى
+    currentStep = 1;
+    formSteps.forEach((step, index) => {
+        if (index === 0) {
+            step.classList.remove('hidden');
+        } else {
+            step.classList.add('hidden');
+        }
+    });
+
+    // تحديث شريط التقدم
+    stepIndicators.forEach((indicator, index) => {
+        const circle = indicator.querySelector('div');
+        if (index === 0) {
+            circle.classList.remove('bg-gray-200', 'text-gray-700');
+            circle.classList.add('bg-blue-600', 'text-white');
+        } else {
+            circle.classList.remove('bg-blue-600', 'text-white');
+            circle.classList.add('bg-gray-200', 'text-gray-700');
+        }
+    });
+
+    progressLine.style.width = '0%';
+
+    // إخفاء نتائج التقرير
+    resultsContainer.classList.add('hidden');
+    loadingResults.classList.remove('hidden');
+
+    // إعادة تعيين جميع الحقول الأساسية (بسيطة، ويمكن توسيعها لاحقاً)
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+        if (el.type === 'checkbox' || el.type === 'radio') {
+            el.checked = false;
+        } else if (el.type !== 'button' && !el.readOnly) {
+            el.value = '';
+        }
+    });
+
+    // إفراغ الحاويات الديناميكية
+    document.getElementById('selectedMedications').innerHTML = '';
+    document.getElementById('allergiesList').innerHTML = '';
+    document.getElementById('painQualities').innerHTML = '';
+    document.getElementById('aggravatingFactors').innerHTML = '';
+    document.getElementById('relievingFactors').innerHTML = '';
+    document.getElementById('nonPainAggravatingFactors').innerHTML = '';
+    document.getElementById('nonPainRelievingFactors').innerHTML = '';
+    document.getElementById('chatContainer').innerHTML = '';
+    localStorage.removeItem('medicalChatHistory');
+}
+                exportPdfBtn.addEventListener('click', exportToPdf);
+            }
+            
+            function setupMaritalStatusChildren() {
+                toggleChildrenField(); // Initial check
+            }
+            
+            function toggleChildrenField() {
+                const maritalStatus = document.getElementById('maritalStatus').value;
+                const childrenDiv = document.querySelector('.children-number');
+                
+                if (maritalStatus === 'أعزب') {
+                    childrenDiv.classList.add('hidden');
+                    document.getElementById('childrenNumber').value = '';
+                } else if (maritalStatus === 'متزوج' || maritalStatus === 'مطلق' || maritalStatus === 'أرمل') {
+                    childrenDiv.classList.remove('hidden');
+                } else {
+                    childrenDiv.classList.add('hidden');
+                    document.getElementById('childrenNumber').value = '';
+                }
+            }
+            
+            function setupMedicationSearch() {
+                const medicationSearch = document.getElementById('medicationSearch');
+                const medicationSuggestions = document.getElementById('medicationSuggestions');
+                
+                medicationSearch.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    if (searchTerm.length < 1) {
+                        medicationSuggestions.classList.add('hidden');
+                        return;
+                    }
+                    
+                    const filteredDrugs = commonDrugs.filter(drug => 
+                        drug.toLowerCase().includes(searchTerm)
+                    );
+                    
+                    // Populate suggestions
+                    medicationSuggestions.innerHTML = '';
+                    if (filteredDrugs.length > 0) {
+                        filteredDrugs.forEach(drug => {
+                            const suggestion = document.createElement('div');
+                            suggestion.classList.add('px-4', 'py-2', 'hover:bg-gray-100', 'cursor-pointer');
+                            suggestion.textContent = drug;
+                            suggestion.addEventListener('click', function() {
+                                medicationSearch.value = '';
+                                addMedication(drug);
+                                medicationSuggestions.classList.add('hidden');
+                            });
+                            medicationSuggestions.appendChild(suggestion);
+                        });
+                        medicationSuggestions.classList.remove('hidden');
+                    } else {
+                        medicationSuggestions.classList.add('hidden');
+                    }
+                });
+                
+                // Hide suggestions when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!medicationSearch.contains(e.target) && !medicationSuggestions.contains(e.target)) {
+                        medicationSuggestions.classList.add('hidden');
+                    }
+                });
+                
+                // Also allow entering custom medication
+                medicationSearch.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && this.value.trim() !== '') {
+                        const drug = this.value.trim();
+                        if (!commonDrugs.includes(drug)) {
+                            addMedication(drug);
+                        }
+                        this.value = '';
+                        medicationSuggestions.classList.add('hidden');
+                    }
+                });
+            }
+            
+            function addMedication(drug) {
+                const selectedMedications = document.getElementById('selectedMedications');
+                
+                // Check if medication already exists
+                const existing = Array.from(selectedMedications.children).some(item => 
+                    item.textContent.includes(drug)
+                );
+                
+                if (existing) return;
+                
+                const medItem = document.createElement('div');
+                medItem.classList.add('flex', 'items-center', 'justify-between', 'bg-blue-50', 'p-2', 'rounded');
+                medItem.innerHTML = `
+                    <span>${drug}</span>
+                    <button class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                medItem.querySelector('button').addEventListener('click', function() {
+                    selectedMedications.removeChild(medItem);
+                });
+                
+                selectedMedications.appendChild(medItem);
+            }
+            
+            function setupPainSeverity() {
+                const painSeverity = document.getElementById('painSeverity');
+                const painSeverityValue = document.getElementById('painSeverityValue');
+                
+                painSeverity.addEventListener('input', function() {
+                    painSeverityValue.textContent = this.value;
+                });
+            }
+            
+            function setupWeightHeightBMI() {
+                calculateBMI(); // Initial calculation
+            }
+            
+            function calculateBMI() {
+                const weight = parseFloat(document.getElementById('weight').value) || 0;
+                const height = parseFloat(document.getElementById('height').value) || 0;
+                
+                if (weight > 0 && height > 0) {
+                    const heightInMeters = height / 100;
+                    const bmi = (weight / (heightInMeters * heightInMeters)).toFixed(1);
+                    document.getElementById('bmi').value = bmi;
+                } else {
+                    document.getElementById('bmi').value = '';
+                }
+            }
+            
+            function loadChatHistory() {
+                // Load chat history from local storage if available
+                const chatHistory = JSON.parse(localStorage.getItem('medicalChatHistory')) || [];
+                chatHistory.forEach(message => {
+                    addChatMessage(message.role, message.content);
+                });
+                
+                // Set welcome message if no history exists
+                if (chatHistory.length === 0) {
+                    addChatMessage('assistant', 'مرحباً! أنا الطبيب الذكي. كيف يمكنني مساعدتك اليوم؟');
+                }
+            }
+            
+            function testAllInputs() {
+                // Test required inputs in step 1
+                const step1Inputs = ['patientName', 'patientGender', 'patientAge', 'maritalStatus'];
+                const nextBtnStep1 = document.querySelector('#step1 .next-btn');
+                
+                step1Inputs.forEach(id => {
+                    document.getElementById(id).addEventListener('input', function() {
+                        const allFilled = step1Inputs.every(id => 
+                            document.getElementById(id).value.trim() !== ''
+                        );
+                        
+                        if (allFilled) {
+                            nextBtnStep1.disabled = false;
+                        } else {
+                            nextBtnStep1.disabled = true;
+                        }
+                    });
+                });
+            }
+            
+            function toggleMedicalHistory(e) {
+                const checkboxes = document.querySelectorAll('#medicalHistoryOptions input[type="checkbox"]:not(#noMedicalHistory)');
+                checkboxes.forEach(checkbox => {
+                    if (e.target.checked) {
+                        checkbox.checked = false;
+                        checkbox.disabled = true;
+                    } else {
+                        checkbox.disabled = false;
+                    }
+                });
+            }
+            
+            function toggleSurgicalHistory(e) {
+                const checkboxes = document.querySelectorAll('#surgicalHistoryOptions input[type="checkbox"]:not(#noSurgicalHistory)');
+                checkboxes.forEach(checkbox => {
+                    if (e.target.checked) {
+                        checkbox.checked = false;
+                        checkbox.disabled = true;
+                    } else {
+                        checkbox.disabled = false;
+                    }
+                });
+            }
+            
+            function toggleComplaintDetails() {
+                const complaint = document.getElementById('chiefComplaint').value.toLowerCase();
+                const addDetailsCheckbox = document.getElementById('addComplaintDetails');
+                const detailsContainer = document.getElementById('complaintDetails');
+                const painDetails = document.getElementById('painDetails');
+                const nonPainDetails = document.getElementById('nonPainDetails');
+                
+                if (complaint.includes('ألم') || complaint.includes('الم')) {
+                    painDetails.classList.remove('hidden');
+                    nonPainDetails.classList.add('hidden');
+                    addDetailsCheckbox.parentElement.classList.remove('hidden');
+                } else if (complaint.trim() !== '') {
+                    painDetails.classList.add('hidden');
+                    nonPainDetails.classList.remove('hidden');
+                    addDetailsCheckbox.parentElement.classList.remove('hidden');
+                } else {
+                    addDetailsCheckbox.checked = false;
+                    addDetailsCheckbox.parentElement.classList.add('hidden');
+                    detailsContainer.classList.add('hidden');
+                    painDetails.classList.add('hidden');
+                    nonPainDetails.classList.add('hidden');
+                }
+            }
+            
+            function toggleComplaintDetailsSection() {
+                const addDetails = document.getElementById('addComplaintDetails').checked;
+                const detailsContainer = document.getElementById('complaintDetails');
+                
+                if (addDetails) {
+                    detailsContainer.classList.remove('hidden');
+                } else {
+                    detailsContainer.classList.add('hidden');
+                }
+            }
+            
+            function addAnotherComplaint() {
+                complaintCount++;
+                const complaintsContainer = document.getElementById('complaintsContainer');
+                const newComplaintDiv = document.createElement('div');
+                newComplaintDiv.classList.add('mb-6', 'mt-4', 'border-t', 'pt-4');
+                newComplaintDiv.innerHTML = `
+                    <div>
+                        <label for="chiefComplaint${complaintCount}" class="block text-sm font-medium text-gray-700 mb-1">الشكاية ${complaintCount}</label>
+                        <input type="text" id="chiefComplaint${complaintCount}" placeholder="مثل: ألم في الصدر، صداع، ضيق نفس..."
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <div class="flex items-center mt-2">
+                            <input type="checkbox" id="addComplaintDetails${complaintCount}" class="custom-checkbox">
+                            <label for="addComplaintDetails${complaintCount}" class="mr-2 text-sm text-gray-700 cursor-pointer">إضافة تفاصيل عن هذه الشكاية</label>
+                        </div>
+                        <div id="complaintDetails${complaintCount}" class="mt-4 p-4 bg-gray-50 rounded-lg hidden">
+                            <!-- Details will be added here when needed -->
+                        </div>
+                    </div>
+                    <button class="remove-complaint mt-2 text-red-600 text-sm hover:text-red-800">
+                        <i class="fas fa-trash-alt mr-1"></i>إزالة هذه الشكاية
+                    </button>
+                `;
+                
+                complaintsContainer.appendChild(newComplaintDiv);
+                
+                // Set up event listeners for the new complaint
+                const complaintInput = document.getElementById(`chiefComplaint${complaintCount}`);
+                const addDetailsCheckbox = document.getElementById(`addComplaintDetails${complaintCount}`);
+                
+                complaintInput.addEventListener('input', function() {
+                    const complaint = this.value.toLowerCase();
+                    const detailsContainer = document.getElementById(`complaintDetails${complaintCount}`);
+                    const painDetails = document.createElement('div');
+                    const nonPainDetails = document.createElement('div');
+                    
+                    if (complaint.includes('ألم') || complaint.includes('الم')) {
+                        painDetails.innerHTML = `
+                            <!-- Similar to the main pain details structure -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">طبيعة الألم</label>
+                                    <select id="painNature${complaintCount}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">اختر طبيعة الألم</option>
+                                        <option value="موضعي">موضعي</option>
+                                        <option value="معمم">معمم</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="painLocation${complaintCount}" class="block text-sm font-medium text-gray-700 mb-1">موقع الألم</label>
+                                    <input type="text" id="painLocation${complaintCount}" placeholder="مثال: الجانب الأيمن من البطن"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <!-- Other pain fields similarly... -->
+                            </div>
+                        `;
+                        detailsContainer.innerHTML = '';
+                        detailsContainer.appendChild(painDetails);
+                        addDetailsCheckbox.parentElement.classList.remove('hidden');
+                    } else if (complaint.trim() !== '') {
+                        nonPainDetails.innerHTML = `
+                            <!-- Similar to the main non-pain details structure -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="complaintNature${complaintCount}" class="block text-sm font-medium text-gray-700 mb-1">الطبيعة الدقيقة للعرض</label>
+                                    <input type="text" id="complaintNature${complaintCount}" placeholder="مثال: سخونة شديدة مع قشعريرة"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <!-- Other non-pain fields similarly... -->
+                            </div>
+                        `;
+                        detailsContainer.innerHTML = '';
+                        detailsContainer.appendChild(nonPainDetails);
+                        addDetailsCheckbox.parentElement.classList.remove('hidden');
+                    } else {
+                        addDetailsCheckbox.checked = false;
+                        addDetailsCheckbox.parentElement.classList.add('hidden');
+                        detailsContainer.classList.add('hidden');
+                    }
+                });
+                
+                addDetailsCheckbox.addEventListener('change', function() {
+                    const detailsContainer = document.getElementById(`complaintDetails${complaintCount}`);
+                    if (this.checked) {
+                        detailsContainer.classList.remove('hidden');
+                    } else {
+                        detailsContainer.classList.add('hidden');
+                    }
+                });
+                
+                newComplaintDiv.querySelector('.remove-complaint').addEventListener('click', function() {
+                    complaintsContainer.removeChild(newComplaintDiv);
+                    complaintCount--;
+                });
+            }
+            
+            function addPainQuality() {
+                const qualityInput = document.getElementById('painQualitySearch').value.trim();
+                const customQuality = document.getElementById('customPainQuality').value.trim();
+                const qualitiesContainer = document.getElementById('painQualities');
+                
+                let qualityToAdd = qualityInput || customQuality;
+                if (qualityToAdd === '') return;
+                
+                // Check if already exists
+                const exists = Array.from(qualitiesContainer.children).some(child => 
+                    child.textContent.includes(qualityToAdd)
+                );
+                
+                if (exists) {
+                    alert('هذه الصفة مضاف مسبقاً!');
+                    return;
+                }
+                
+                const qualityTag = document.createElement('div');
+                qualityTag.classList.add('bg-blue-100', 'text-blue-800', 'px-3', 'py-1', 'rounded-full', 'text-sm', 'flex', 'items-center', 'gap-1');
+                qualityTag.innerHTML = `
+                    ${qualityToAdd}
+                    <button class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                `;
+                
+                qualityTag.querySelector('button').addEventListener('click', function() {
+                    qualitiesContainer.removeChild(qualityTag);
+                });
+                
+                qualitiesContainer.appendChild(qualityTag);
+                
+                // Clear inputs
+                document.getElementById('painQualitySearch').value = '';
+                document.getElementById('customPainQuality').value = '';
+            }
+            
+            function addAggravatingFactor() {
+                const factorInput = document.getElementById('aggravatingFactor');
+                const factorsContainer = document.getElementById('aggravatingFactors');
+                addFactorToList(factorInput, factorsContainer);
+            }
+            
+            function addRelievingFactor() {
+                const factorInput = document.getElementById('relievingFactor');
+                const factorsContainer = document.getElementById('relievingFactors');
+                addFactorToList(factorInput, factorsContainer);
+            }
+            
+            function addNonPainAggravatingFactor() {
+                const factorInput = document.getElementById('nonPainAggravatingFactor');
+                const factorsContainer = document.getElementById('nonPainAggravatingFactors');
+                addFactorToList(factorInput, factorsContainer);
+            }
+            
+            function addNonPainRelievingFactor() {
+                const factorInput = document.getElementById('nonPainRelievingFactor');
+                const factorsContainer = document.getElementById('nonPainRelievingFactors');
+                addFactorToList(factorInput, factorsContainer);
+            }
+            
+            function addFactorToList(inputElement, container) {
+                const factor = inputElement.value.trim();
+                if (factor === '') return;
+                
+                // Check if factor already exists
+                const factors = Array.from(container.querySelectorAll('div')).map(div => 
+                    div.textContent.replace('×', '').trim()
+                );
+                
+                if (factors.includes(factor)) {
+                    alert('هذا العامل مضاف مسبقاً!');
+                    return;
+                }
+                
+                const factorDiv = document.createElement('div');
+                factorDiv.classList.add('flex', 'items-center', 'justify-between', 'bg-gray-100', 'px-3', 'py-1', 'rounded');
+                factorDiv.innerHTML = `
+                    <span>${factor}</span>
+                    <button class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                factorDiv.querySelector('button').addEventListener('click', function() {
+                    container.removeChild(factorDiv);
+                });
+                
+                container.appendChild(factorDiv);
+                inputElement.value = '';
+            }
+            
+            function addAllergy() {
+                const allergyInput = document.getElementById('allergyInput');
+                const allergyType = document.getElementById('allergyType');
+                const allergiesList = document.getElementById('allergiesList');
+                
+                const allergy = allergyInput.value.trim();
+                const type = allergyType.value;
+                
+                if (allergy === '') return;
+                
+                // Check if allergy already exists
+                const allergies = Array.from(allergiesList.querySelectorAll('div')).map(div => 
+                    div.textContent.split(' - ')[0].trim()
+                );
+                
+                if (allergies.includes(allergy)) {
+                    alert('هذه المادة المضرة مضافه مسبقاً!');
+                    return;
+                }
+                
+                const allergyDiv = document.createElement('div');
+                allergyDiv.classList.add('flex', 'items-center', 'justify-between', 'bg-red-50', 'px-3', 'py-1', 'rounded', 'border', 'border-red-100');
+                allergyDiv.innerHTML = `
+                    <span>${allergy} - ${type}</span>
+                    <button class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                allergyDiv.querySelector('button').addEventListener('click', function() {
+                    allergiesList.removeChild(allergyDiv);
+                });
+                
+                allergiesList.appendChild(allergyDiv);
+                allergyInput.value = '';
+            }
+            
+            function goToNextStep() {
+                if (currentStep < totalSteps) {
+                    goToStep(currentStep + 1);
+                }
+            }
+            
+            function goToPreviousStep() {
+                if (currentStep > 1) {
+                    goToStep(currentStep - 1);
+                }
+            }
+            
+            function goToStep(step) {
+                // Hide current step
+                document.getElementById(`step${currentStep}`).classList.add('hidden');
+                document.querySelector(`[data-step="${currentStep}"] div`).classList.remove('bg-blue-600', 'text-white');
+                document.querySelector(`[data-step="${currentStep}"] div`).classList.add('bg-gray-200', 'text-gray-700');
+                
+                // Show new step
+                document.getElementById(`step${step}`).classList.remove('hidden');
+                document.querySelector(`[data-step="${step}"] div`).classList.remove('bg-gray-200', 'text-gray-700');
+                document.querySelector(`[data-step="${step}"] div`).classList.add('bg-blue-600', 'text-white');
+                
+                // Update progress line
+                progressLine.style.width = `${((step - 1) / (totalSteps - 1)) * 100}%`;
+                
+                currentStep = step;
+                
+                // Scroll to top
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+            
+            function openSettings() {
+                settingsModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            }
+            
+            function closeSettingsModal() {
+                settingsModal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+            
+            function checkConnection() {
+                const apiKey = apiKeyInput.value.trim();
+                
+                if (apiKey === '') {
+                    showConnectionStatus('يرجى إدخال مفتاح الإشتراك', false);
+                    return;
+                }
+                
+                showConnectionStatus('جاري التحقق من الاتصال...', 'loading');
+                
+                // Test the API connection by sending a simple prompt
+                const testPrompt = {
+                    contents: [
+                        {
+                            parts: [
+                                {
+                                    text: "قم بالرد بـ 'OK' فقط بدون أي تفاصيل أخرى"
+                                }
+                            ]
+                        }
+                    ]
+                };
+                
+                fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testPrompt)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.candidates && data.candidates[0].content.parts[0].text.trim() === 'OK') {
+                        showConnectionStatus('الاتصال ناجح مع السيرفر', true);
+                    } else {
+                        showConnectionStatus('الاتصال غير ناجح، يرجى التحقق من المفتاح او جرب شغل ال VPN', false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error testing connection:', error);
+                    showConnectionStatus('فشل الاتصال، يرجى التحقق من الإنترنت والمفتاح', false);
+                });
+            }
+            
+            function showConnectionStatus(message, status) {
+                connectionStatus.classList.remove('hidden');
+                statusText.textContent = message;
+                
+                if (status === 'loading') {
+                    connectionStatus.className = 'flex items-center mb-4 p-3 rounded-lg bg-blue-100 text-blue-800';
+                    statusIcon.innerHTML = '<i class="fas fa-circle-notch animate-spin ml-2"></i>';
+                } else if (status === true) {
+                    connectionStatus.className = 'flex items-center mb-4 p-3 rounded-lg bg-green-100 text-green-800';
+                    statusIcon.innerHTML = '<i class="fas fa-check-circle ml-2"></i>';
+                } else {
+                    connectionStatus.className = 'flex items-center mb-4 p-3 rounded-lg bg-red-100 text-red-800';
+                    statusIcon.innerHTML = '<i class="fas fa-times-circle ml-2"></i>';
+                }
+            }
+            
+            function saveSettings() {
+    const key = apiKeyInput.value.trim();
+    if (key !== '') {
+        localStorage.setItem('geminiApiKey', key);
+
+        // إغلاق نافذة الإعدادات
+        settingsModal.classList.add('hidden');
+
+        // إرجاع التمرير للصفحة
+        document.body.style.overflow = '';
+        document.body.classList.remove('overflow-hidden');
+    } else {
+        alert('تطبيق طبيبي');
+    }
+}
+            
+            function openChat() {
+                chatModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+                chatInput.focus();
+            }
+            
+            function closeChatModal() {
+                chatModal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+            
+            function addChatMessage(role, content) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = role === 'user' ? 
+                    'bg-blue-100 rounded-lg p-3 ml-12' : 
+                    'bg-gray-100 rounded-lg p-3 mr-12';
+                
+                messageDiv.innerHTML = `
+                    <div class="font-semibold mb-1">${role === 'user' ? 'أنت' : 'الطبيب الذكي'}</div>
+                    <div class="text-gray-800">${content}</div>
+                `;
+                
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                // Save to local storage
+                const chatHistory = JSON.parse(localStorage.getItem('medicalChatHistory')) || [];
+                chatHistory.push({ role, content });
+                localStorage.setItem('medicalChatHistory', JSON.stringify(chatHistory));
+            }
+            
+            function sendChatMessage() {
+                const message = chatInput.value.trim();
+                if (message === '') return;
+                
+                addChatMessage('user', message);
+                chatInput.value = '';
+                
+                // Show typing indicator
+                const typingIndicator = document.createElement('div');
+                typingIndicator.className = 'bg-gray-100 rounded-lg p-3 mr-12';
+                typingIndicator.innerHTML = `
+                    <div class="font-semibold mb-1">الطبيب الذكي</div>
+                    <div class="flex space-x-1">
+                        <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 0.2s"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 0.4s"></div>
+                    </div>
+                `;
+                chatContainer.appendChild(typingIndicator);
+                
+                const apiKey = localStorage.getItem('geminiApiKey') || apiKeyInput.value.trim();
+                const prompt = {
+                    contents: [
+                        {
+                            role: 'user',
+                            parts: [
+                                {
+                                    text: `بصفتك طبيبًا افتراضيًا، أجب على استفسار المريض التالي باللغة العربية بشكل مفيد وواضح مع التركيز على الجوانب الطبية: ${message}`
+                                }
+                            ]
+                        }
+                    ]
+                };
+                
+                fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(prompt)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    chatContainer.removeChild(typingIndicator);
+                    const responseText = data.candidates[0].content.parts[0].text;
+                    addChatMessage('assistant', responseText);
+                })
+                .catch(error => {
+                    chatContainer.removeChild(typingIndicator);
+                    addChatMessage('assistant', 'عذراً، حصلت مشكلة في الاتصال. يرجى التحقق من اتصال الإنترنت وإعدادات API.');
+                    console.error('Error sending chat message:', error);
+                });
+            }
+            
+            function completeHistory() {
+                const apiKey = localStorage.getItem('geminiApiKey') || apiKeyInput.value.trim();
+                
+                if (apiKey === '') {
+                    alert('يرجى إدخال مفتاح API في الإعدادات أولاً');
+                    return;
+                }
+                
+                goToStep(5);
+                loadingResults.classList.remove('hidden');
+                resultsContainer.classList.add('hidden');
+                
+                // Collect all patient data
+                const patientData = collectPatientData();
+                
+                // Prepare the prompt for Gemini
+                const promptText = `أنت طبيب خبير ومتخصص. أرجو تحليل المعلومات التالية عن المريض وإعداد تقرير سريري كامل باللغة العربية:\n\n${JSON.stringify(patientData, null, 2)}\n\nالرجاء تقديم:\n1. قائمة التشخيصات المحتملة مرتبة حسب الاحتمال مع شرح مختصر لكل تشخيص\n2. الفحوصات والاستقصاءات اللازمة لكل تشخيص مع ترتيب الاستقصاءات المخبرية عن الشعاعية.\n3. ما هي الأدوية المناسبة (أسماء التركيبات الطبية مع شرحها في هذه الحالات مع مراعاة القصة السريرية)\n4. أي ملاحظات طبية إضافية أو تحذيرات.`;
+                
+                const prompt = {
+                    contents: [
+                        {
+                            parts: [
+                                {
+                                    text: promptText
+                                }
+                            ]
+                        }
+                    ]
+                };
+                
+                fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(prompt)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadingResults.classList.add('hidden');
+                    resultsContainer.classList.remove('hidden');
+                    
+                    const responseText = data.candidates[0].content.parts[0].text;
+                    processGeminiResponse(responseText, patientData);
+                })
+                .catch(error => {
+                    loadingResults.classList.add('hidden');
+                    console.error('Error completing history:', error);
+                });
+            }
+            
+            function collectPatientData() {
+                // Personal information
+                const personalInfo = {
+                    name: document.getElementById('patientName').value,
+                    gender: document.getElementById('patientGender').value,
+                    age: document.getElementById('patientAge').value,
+                    maritalStatus: document.getElementById('maritalStatus').value,
+                    children: document.getElementById('maritalStatus').value !== 'أعزب' ? document.getElementById('childrenNumber').value : 'لا ينطبق',
+                    address: document.getElementById('patientAddress').value,
+                    occupation: document.getElementById('patientOccupation').value
+                };
+                
+                // Chief complaints
+                const complaints = [];
+                const complaintInputs = document.querySelectorAll('input[id^="chiefComplaint"]');
+                
+                complaintInputs.forEach((input, index) => {
+                    const complaintNum = index === 0 ? '' : index + 1;
+                    const complaint = {
+                        complaint: input.value,
+                        details: {}
+                    };
+                    
+                    // Check if details were added
+                    const detailsCheckbox = document.getElementById(`addComplaintDetails${complaintNum}`);
+                    if (detailsCheckbox && detailsCheckbox.checked) {
+                        // Determine if it's pain or other complaint
+                        if (input.value.includes('ألم') || input.value.includes('الم')) {
+                            complaint.details = {
+                                type: 'pain',
+                                nature: document.getElementById(`painNature${complaintNum}`)?.value,
+                                location: document.getElementById(`painLocation${complaintNum}`)?.value,
+                                radiation: document.getElementById(`painRadiation${complaintNum}`)?.value,
+                                qualities: Array.from(document.querySelectorAll('#painQualities div')).map(div => 
+                                    div.textContent.replace('×', '').trim()
+                                ),
+                                severity: document.getElementById(`painSeverity${complaintNum}`)?.value,
+                                onset: document.getElementById(`painOnset${complaintNum}`)?.value,
+                                duration: document.getElementById(`painDuration${complaintNum}`)?.value,
+                                frequency: document.getElementById(`painFrequency${complaintNum}`)?.value,
+                                aggravatingFactors: Array.from(document.querySelectorAll('#aggravatingFactors div')).map(div => 
+                                    div.textContent.replace('×', '').trim()
+                                ),
+                                relievingFactors: Array.from(document.querySelectorAll('#relievingFactors div')).map(div => 
+                                    div.textContent.replace('×', '').trim()
+                                ),
+                                associatedSymptoms: document.getElementById(`associatedSymptoms${complaintNum}`)?.value
+                            };
+                        } else {
+                            complaint.details = {
+                                type: 'non-pain',
+                                nature: document.getElementById(`complaintNature${complaintNum}`)?.value,
+                                onset: document.getElementById(`complaintOnset${complaintNum}`)?.value,
+                                duration: document.getElementById(`complaintDuration${complaintNum}`)?.value,
+                                frequency: document.getElementById(`complaintFrequency${complaintNum}`)?.value,
+                                progression: document.getElementById(`complaintProgression${complaintNum}`)?.value,
+                                aggravatingFactors: Array.from(document.querySelectorAll('#nonPainAggravatingFactors div')).map(div => 
+                                    div.textContent.replace('×', '').trim()
+                                ),
+                                relievingFactors: Array.from(document.querySelectorAll('#nonPainRelievingFactors div')).map(div => 
+                                    div.textContent.replace('×', '').trim()
+                                ),
+                                associatedSymptoms: document.getElementById(`nonPainAssociatedSymptoms${complaintNum}`)?.value
+                            };
+                        }
+                    }
+                    
+                    complaints.push(complaint);
+                });
+                
+                // Medical history
+                const medicalHistory = {
+                    diseases: Array.from(document.querySelectorAll('#medicalHistoryOptions input[type="checkbox"]:checked')).map(cb => cb.value),
+                    otherDiseases: document.getElementById('otherMedicalHistory').value,
+                    surgeries: Array.from(document.querySelectorAll('#surgicalHistoryOptions input[type="checkbox"]:checked')).map(cb => cb.value),
+                    otherSurgeries: document.getElementById('otherSurgicalHistory').value,
+                    medications: Array.from(document.querySelectorAll('#selectedMedications div')).map(div => 
+                        div.textContent.replace('×', '').trim()
+                    ),
+                    allergies: Array.from(document.querySelectorAll('#allergiesList div')).map(div => {
+                        const parts = div.textContent.split(' - ');
+                        return {
+                            substance: parts[0].replace('×', '').trim(),
+                            type: parts[1]?.replace('×', '').trim()
+                        };
+                    })
+                };
+                
+                // Vital signs
+                const vitalSigns = {
+                    temperature: document.getElementById('temperature').value,
+                    bloodPressure: `${document.getElementById('bloodPressureSystolic').value}/${document.getElementById('bloodPressureDiastolic').value}`,
+                    pulse: document.getElementById('pulse').value,
+                    respiratoryRate: document.getElementById('respiratoryRate').value,
+                    oxygenSaturation: document.getElementById('oxygenSaturation').value,
+                    weight: document.getElementById('weight').value,
+                    height: document.getElementById('height').value,
+                    bmi: document.getElementById('bmi').value,
+                    notes: document.getElementById('vitalNotes').value
+                };
+                
+                return {
+                    personalInfo,
+                    complaints,
+                    medicalHistory,
+                    vitalSigns
+                };
+            }
+            
+            function processGeminiResponse(responseText, patientData) {
+                const patientSummary = document.getElementById('patientSummary');
+patientSummary.innerHTML = `
+  <div class="bg-white p-4 rounded-lg shadow">
+      <h5 class="font-semibold text-blue-500 mb-2">المعلومات الشخصية</h5>
+      <p><span class="font-medium">الاسم:</span> ${patientData.personalInfo.name}</p>
+      <p><span class="font-medium">العمر:</span> ${patientData.personalInfo.age} سنة</p>
+      <p><span class="font-medium">الجنس:</span> ${patientData.personalInfo.gender}</p>
+      <p><span class="font-medium">الحالة الاجتماعية:</span> ${patientData.personalInfo.maritalStatus}</p>
+      <p><span class="font-medium">العنوان:</span> ${patientData.personalInfo.address}</p>
+      <p><span class="font-medium">المهنة:</span> ${patientData.personalInfo.occupation}</p>
+  </div>
+  <div class="bg-white p-4 rounded-lg shadow mt-4">
+      <h5 class="font-semibold text-blue-500 mb-2">الشكاوى الرئيسية</h5>
+      <ul class="list-disc list-inside">
+          ${patientData.complaints.map(c => `<li>${c.complaint}</li>`).join('')}
+      </ul>
+  </div>
+  <div class="bg-white p-4 rounded-lg shadow mt-4">
+      <h5 class="font-semibold text-blue-500 mb-2">العلامات الحيوية</h5>
+      <p><span class="font-medium">درجة الحرارة:</span> ${patientData.vitalSigns.temperature}°C</p>
+      <p><span class="font-medium">الضغط:</span> ${patientData.vitalSigns.bloodPressure} mmHg</p>
+      <p><span class="font-medium">النبض:</span> ${patientData.vitalSigns.pulse} نبضة/دقيقة</p>
+      <p><span class="font-medium">التنفس:</span> ${patientData.vitalSigns.respiratoryRate} نفس/دقيقة</p>
+      <p><span class="font-medium">إشباع الأكسجين:</span> ${patientData.vitalSigns.oxygenSaturation}%</p>
+  </div>
+`;
+    // تقسيم النص حسب العناوين الرئيسية
+    const parts = {
+        diagnosis: '',
+        tests: '',
+        treatment: '',
+        notes: ''
+    };
+
+    // استخراج كل جزء حسب العنوان
+    parts.diagnosis = extractSection(responseText, 'التشخيصات المحتملة', 'الفحوصات والاستقصاءات الموصى بها');
+    parts.tests = extractSection(responseText, 'الفحوصات والاستقصاءات الموصى بها', 'العلاجات والأدوية المقترحة');
+    parts.treatment = extractSection(responseText, 'العلاجات والأدوية المقترحة', 'التوصيات والملاحظات الإضافية');
+    parts.notes = extractSection(responseText, 'التوصيات والملاحظات الإضافية', null);
+
+    // عرض كل جزء في مكانه
+    document.getElementById('diagnosisResults').innerHTML = formatGeminiText(parts.diagnosis);
+    document.getElementById('testsResults').innerHTML = formatGeminiText(parts.tests);
+    document.getElementById('treatmentResults').innerHTML = formatGeminiText(parts.treatment);
+    document.getElementById('notesResults').innerHTML = formatGeminiText(parts.notes);
+}
+            function extractSection(text, start, end) {
+    const startIndex = text.indexOf(start);
+    const endIndex = end ? text.indexOf(end) : -1;
+
+    if (startIndex === -1) return '';
+    if (endIndex === -1 || endIndex < startIndex) return text.slice(startIndex).trim();
+
+    return text.slice(startIndex, endIndex).trim();
+}
+            function formatGeminiText(text) {
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // يجعل النص بين ** غامق
+        .replace(/\n/g, '<br>'); // يحول كل سطر جديد إلى سطر مرئي
+}
+            
+            function formatResponseSection(text) {
+                // Simple formatting - each line as a paragraph
+                const lines = text.split('\n').filter(line => line.trim() !== '');
+                return lines.map(line => `<p class="mb-3">${line}</p>`).join('');
+            }
+            
+            function startNewHistory() {
+                if (confirm('هل أنت متأكد أنك تريد بدء قصة سريرية جديدة؟ سيتم مسح جميع البيانات الحالية.')) {
+                    // Reset all form fields
+                    document.getElementById('historyForm').reset();
+                    
+                    // Reset dynamic elements
+                    document.getElementById('painQualities').innerHTML = '';
+                    document.getElementById('aggravatingFactors').innerHTML = '';
+                    document.getElementById('relievingFactors').innerHTML = '';
+                    document.getElementById('nonPainAggravatingFactors').innerHTML = '';
+                    document.getElementById('nonPainRelievingFactors').innerHTML = '';
+                    document.getElementById('selectedMedications').innerHTML = '';
+                    document.getElementById('allergiesList').innerHTML = '';
+                    
+                    // Remove additional complaints
+                    const complaintsContainer = document.getElementById('complaintsContainer');
+                    while (complaintsContainer.children.length > 1) {
+                        complaintsContainer.removeChild(complaintsContainer.lastChild);
+                    }
+                    complaintCount = 1;
+                    
+                    // Reset steps
+                    currentStep = 1;
+                    goToStep(1);
+                    
+                    // Reset progress line
+                    progressLine.style.width = '0%';
+                    
+                    // Reset step indicators
+                    stepIndicators.forEach((indicator, index) => {
+                        const div = indicator.querySelector('div');
+                        if (index === 0) {
+                            div.classList.remove('bg-gray-200', 'text-gray-700');
+                            div.classList.add('bg-blue-600', 'text-white');
+                        } else {
+                            div.classList.remove('bg-blue-600', 'text-white');
+                            div.classList.add('bg-gray-200', 'text-gray-700');
+                        }
+                    });
+                }
+            }
+            
+            function exportToPdf() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Add title
+                doc.setFontSize(20);
+                doc.setTextColor(40, 53, 147); // Dark blue
+                doc.text('تقرير القصة السريرية', 105, 15, { align: 'center' });
+                
+                // Add patient summary
+                doc.setFontSize(14);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`الاسم: ${document.getElementById('patientName').value}`, 10, 30);
+                doc.text(`العمر: ${document.getElementById('patientAge').value} سنة`, 10, 40);
+                doc.text(`الجنس: ${document.getElementById('patientGender').value}`, 10, 50);
+                
+                // Add complaints
+                doc.setFontSize(16);
+                doc.setTextColor(40, 53, 147);
+                doc.text('الشكاوى الرئيسية:', 10, 70);
+                
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                
+                const complaints = [];
+                document.querySelectorAll('input[id^="chiefComplaint"]').forEach(input => {
+                    if (input.value.trim() !== '') {
+                        complaints.push(input.value);
+                    }
+                });
+                
+                if (complaints.length > 0) {
+                    doc.text(complaints.join('، '), 10, 80);
+                } else {
+                    doc.text('لا توجد شكاوى محددة', 10, 80);
+                }
+                
+                // Save the PDF
+                doc.save('تقرير_القصة_السريرية.pdf');
+            }
+        });
+    </script>
+</body>
+</html>
