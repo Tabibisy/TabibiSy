@@ -1910,46 +1910,64 @@ patientSummary.innerHTML = `
             }
             
             function startNewHistory() {
-                if (confirm('هل أنت متأكد أنك تريد بدء قصة سريرية جديدة؟ سيتم مسح جميع البيانات الحالية.')) {
-                    // Reset all form fields
-                    document.getElementById('historyForm').reset();
-                    
-                    // Reset dynamic elements
-                    document.getElementById('painQualities').innerHTML = '';
-                    document.getElementById('aggravatingFactors').innerHTML = '';
-                    document.getElementById('relievingFactors').innerHTML = '';
-                    document.getElementById('nonPainAggravatingFactors').innerHTML = '';
-                    document.getElementById('nonPainRelievingFactors').innerHTML = '';
-                    document.getElementById('selectedMedications').innerHTML = '';
-                    document.getElementById('allergiesList').innerHTML = '';
-                    
-                    // Remove additional complaints
-                    const complaintsContainer = document.getElementById('complaintsContainer');
-                    while (complaintsContainer.children.length > 1) {
-                        complaintsContainer.removeChild(complaintsContainer.lastChild);
-                    }
-                    complaintCount = 1;
-                    
-                    // Reset steps
-                    currentStep = 1;
-                    goToStep(1);
-                    
-                    // Reset progress line
-                    progressLine.style.width = '0%';
-                    
-                    // Reset step indicators
-                    stepIndicators.forEach((indicator, index) => {
-                        const div = indicator.querySelector('div');
-                        if (index === 0) {
-                            div.classList.remove('bg-gray-200', 'text-gray-700');
-                            div.classList.add('bg-blue-600', 'text-white');
-                        } else {
-                            div.classList.remove('bg-blue-600', 'text-white');
-                            div.classList.add('bg-gray-200', 'text-gray-700');
-                        }
-                    });
-                }
+    if (confirm('هل أنت متأكد أنك تريد بدء قصة سريرية جديدة؟ سيتم مسح جميع البيانات الحالية.')) {
+        // إعادة تعيين جميع حقول النموذج
+        document.querySelectorAll('input, select, textarea').forEach(element => {
+            if (element.type === 'checkbox' || element.type === 'radio') {
+                element.checked = false;
+            } else if (!element.readOnly && element.id !== 'apiKey') { // استثناء حقل API key
+                element.value = '';
             }
+        });
+
+        // إعادة تعيين الحاويات الديناميكية
+        document.getElementById('painQualities').innerHTML = '';
+        document.getElementById('aggravatingFactors').innerHTML = '';
+        document.getElementById('relievingFactors').innerHTML = '';
+        document.getElementById('nonPainAggravatingFactors').innerHTML = '';
+        document.getElementById('nonPainRelievingFactors').innerHTML = '';
+        document.getElementById('selectedMedications').innerHTML = '';
+        document.getElementById('allergiesList').innerHTML = '';
+        document.getElementById('complaintDetails').innerHTML = '';
+        document.getElementById('nonPainDetails').innerHTML = '';
+
+        // إزالة الشكاوى الإضافية
+        const complaintsContainer = document.getElementById('complaintsContainer');
+        while (complaintsContainer.children.length > 1) {
+            complaintsContainer.removeChild(complaintsContainer.lastChild);
+        }
+        complaintCount = 1;
+
+        // إعادة تعيين حالة الخطوات
+        currentStep = 1;
+        formSteps.forEach((step, index) => {
+            if (index === 0) {
+                step.classList.remove('hidden');
+            } else {
+                step.classList.add('hidden');
+            }
+        });
+
+        // إعادة تعيين شريط التقدم
+        progressLine.style.width = '0%';
+
+        // إعادة تعيين مؤشرات الخطوات
+        stepIndicators.forEach((indicator, index) => {
+            const circle = indicator.querySelector('div');
+            if (index === 0) {
+                circle.classList.remove('bg-gray-200', 'text-gray-700');
+                circle.classList.add('bg-blue-600', 'text-white');
+            } else {
+                circle.classList.remove('bg-blue-600', 'text-white');
+                circle.classList.add('bg-gray-200', 'text-gray-700');
+            }
+        });
+
+        // إخفاء نتائج التقرير إذا كانت ظاهرة
+        resultsContainer.classList.add('hidden');
+        loadingResults.classList.remove('hidden');
+    }
+}
             
             function exportToPdf() {
                 const { jsPDF } = window.jspdf;
